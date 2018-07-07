@@ -8,6 +8,8 @@ from watson_developer_cloud import NaturalLanguageUnderstandingV1
 from watson_developer_cloud.natural_language_understanding_v1 \
 import Features, EntitiesOptions, KeywordsOptions
 import time
+from django.core.mail import send_mail
+from django.conf import settings
 
 # Create your views here.
 
@@ -60,7 +62,12 @@ def view(request, key):
 		localtime = time.asctime( time.localtime(time.time()) ) + '\n'
 
 		if tag == 'Urgent! Attention needed' or tag == 'Complaint! Attention Required':
-			header = 'COMPLAINT! Shall We post this complaint to government for you' + '\n'
+			header = 'COMPLAINT! A Mail has been sent to the respective authorities, Patience would be highly appreciated' + '\n'
+			subject = 'Complaint that need to be addressed immidiately'
+			message = feedback.feedback
+			from_email = settings.EMAIL_HOST_USER
+			to_list = ['dmpgbsnl@gmail.com', settings.EMAIL_HOST_USER] ## SAMPLE TO BSNL ##
+			send_mail(subject, message, from_email, to_list, fail_silently=True)
 		if tag == 'Good Work! Keep it up':
 			header = 'Thank You for your feedback, Always Happy to Help'
 
@@ -68,4 +75,8 @@ def view(request, key):
 		return render(request, 'sentiment/view.html', {'key': key, 'feedback': feedback.feedback, 'response': response, 'net': net, 'tag': tag, 'header': header, 'localtime': localtime})
 	else:
 		raise Http404("Feedback Doesnot Exist")
+
+
+
+
 
